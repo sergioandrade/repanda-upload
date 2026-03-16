@@ -1,4 +1,5 @@
 import { uploadToCloudinary } from "../upload";
+import { formatPhoneMask } from "../utils/date";
 import logoUrl from "../images/logo.jpg";
 
 export function renderForm(
@@ -26,6 +27,17 @@ export function renderForm(
               id="name-input"
               required
               placeholder="Seu nome"
+              class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
+            />
+          </div>
+
+          <div>
+            <label for="phone-input" class="block text-sm font-medium text-gray-700 mb-1">Telefone</label>
+            <input
+              type="tel"
+              id="phone-input"
+              required
+              placeholder="(11) 99999-9999"
               class="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition"
             />
           </div>
@@ -73,6 +85,7 @@ export function renderForm(
 
   const form = container.querySelector<HTMLFormElement>("#upload-form")!;
   const nameInput = container.querySelector<HTMLInputElement>("#name-input")!;
+  const phoneInput = container.querySelector<HTMLInputElement>("#phone-input")!;
   const photoInput = container.querySelector<HTMLInputElement>("#photo-input")!;
   const previewContainer = container.querySelector<HTMLDivElement>("#preview-container")!;
   const previewImage = container.querySelector<HTMLImageElement>("#preview-image")!;
@@ -104,6 +117,10 @@ export function renderForm(
     }
   });
 
+  phoneInput.addEventListener("input", () => {
+    phoneInput.value = formatPhoneMask(phoneInput.value);
+  });
+
   discardBtn.addEventListener("click", clearPhoto);
 
   form.addEventListener("submit", async (e) => {
@@ -111,15 +128,16 @@ export function renderForm(
     errorMessage.classList.add("hidden");
 
     const name = nameInput.value.trim();
+    const phone = phoneInput.value.trim();
     const file = photoInput.files?.[0];
 
-    if (!name || !file) return;
+    if (!name || !phone || !file) return;
 
     submitBtn.disabled = true;
     submitBtn.textContent = "Enviando...";
 
     try {
-      const result = await uploadToCloudinary(file, name);
+      const result = await uploadToCloudinary(file, name, phone);
       onSuccess(result.secure_url);
     } catch (err) {
       errorMessage.textContent =

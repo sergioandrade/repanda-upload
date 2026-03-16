@@ -11,9 +11,10 @@ export interface UploadResult {
 
 export async function uploadToCloudinary(
   file: File,
-  name: string
+  name: string,
+  phone: string
 ): Promise<UploadResult> {
-  const publicId = buildPublicId(name);
+  const publicId = buildPublicId(name, phone);
 
   const formData = new FormData();
   formData.append("file", file);
